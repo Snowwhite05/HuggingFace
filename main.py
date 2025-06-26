@@ -2,6 +2,8 @@ import streamlit as st
 from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
 import os
+from PIL import Image
+from io import BytesIO
 
 # Set page config FIRST
 st.set_page_config(page_title="Text-to-Image Generator", page_icon="🖼️")
