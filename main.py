@@ -1,34 +1,33 @@
+# main.py
 import streamlit as st
 from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
 import os
-from PIL import Image
-from io import BytesIO
 
-# Set page config FIRST
+# Set page config
 st.set_page_config(page_title="Text-to-Image Generator", page_icon="🖼️")
 
-# Load environment variables
+# ✅ Load environment variables
 load_dotenv()
-HF_TOKEN = os.getenv("HUGGINGFACE_API_KEY")
 
-# Initialize the InferenceClient
-client = InferenceClient(token=HF_TOKEN)
+# ✅ Fetch token securely
+api_key = os.getenv("HUGGINGFACEHUB_API_TOKEN")
 
-st.title("🖼️ Text-to-Image with Hugging Face InferenceClient")
+if not api_key:
+    st.error("❌ API token not found. Make sure it's in the .env file.")
+    st.stop()
 
-prompt = st.text_input("Enter your image prompt:", "Astronaut riding a horse")
+# ✅ Initialize Hugging Face client
+client = InferenceClient(token=api_key)
+
+# UI
+st.title("Text to Image Generator 🎨")
+prompt = st.text_input("Enter a prompt:", "a fantasy castle in the sky")
 
 if st.button("Generate Image"):
-    if not HF_TOKEN:
-        st.error("Hugging Face API token not found! Please set HUGGINGFACE_TOKEN in your .env file.")
-    else:
-        with st.spinner("Generating image..."):
-            try:
-                image = client.text_to_image(
-                    prompt,
-                    model="black-forest-labs/FLUX.1-dev"
-                )
-                st.image(image, caption=prompt)
-            except Exception as e:
-                st.error(f"Failed to generate image: {e}")
+    with st.spinner("Generating..."):
+        try:
+            image = client.text_to_image(prompt=prompt)
+            st.image(image)
+        except Exception as e:
+            st.error(f"❌ Failed to generate image: {e}")
